@@ -98,6 +98,7 @@ Setiap detail pada list Projek dan Pengalaman dirender secara tersembunyi. Saat 
 6. Kompilasi Asset Tailwind CSS:
    ```bash
    npm run build
+   npm run dev
    ```
 
 7. Jalankan Server:
