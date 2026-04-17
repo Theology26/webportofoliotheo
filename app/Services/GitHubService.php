@@ -13,7 +13,7 @@ class GitHubService
     public function fetchGitHubData()
     {
         return Cache::remember('github_portfolio_data', 86400, function () {
-            $username = env('GITHUB_USERNAME', 'Theology26');
+            $username = 'Theology26';
             $token = env('GITHUB_TOKEN');
 
             $headers = [
