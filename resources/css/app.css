@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+    /* Background Biru Gelap dengan Dot Grid */
+    .bg-space-grid {
+        background-color: #020617; 
+        background-image: radial-gradient(rgba(255, 255, 255, 0.1) 2px, transparent 2px);
+        background-size: 50px 50px;
+        color: #ffffff;
+    }
+
+    /* Trik Teks Outline */
+    .text-outline {
+        color: transparent;
+        -webkit-text-stroke: 1px rgba(255, 255, 255, 0.6);
+    }
+}
+
+@layer components {
+    /* Kartu Glassmorphism Standard - Strict iOS-Style */
+    .glass-panel {
+        @apply bg-[#020617]/40 backdrop-blur-3xl border border-white/10 rounded-[2.5rem] shadow-2xl;
+        transition: all 0.3s ease;
+    }
+    .glass-panel:hover {
+        border-color: rgba(56, 189, 248, 0.4);
+        transform: translateY(-5px);
+    }
+
+    /* Input Glassmorphism form */
+    .glass-input {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        color: white;
+        transition: all 0.3s ease;
+    }
+    .glass-input:focus {
+        outline: none;
+        border-color: rgba(56, 189, 248, 0.6);
+        box-shadow: 0 0 10px rgba(56, 189, 248, 0.2);
+    }
+
+    /* Khusus Frame Profil: 3D Tilt Effect & Glass */
+    .glass-photo-frame {
+        perspective: 1000px;
+        transform-style: preserve-3d;
+        border-radius: 4rem 2rem 4rem 6rem;
+        transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.4s ease;
+    }
+    .glass-photo-frame:hover {
+        transform: translateY(-15px) rotateX(4deg) rotateY(4deg);
+        box-shadow: 0 50px 100px rgba(0,0,0,0.6);
+        border-color: rgba(56, 189, 248, 0.6);
+    }
+    
+    .glass-button {
+        @apply px-8 py-3 bg-white text-black rounded-lg font-bold hover:bg-cyan-400 hover:text-white transition-all shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:shadow-[0_0_20px_rgba(56,189,248,0.5)];
+    }
+}
