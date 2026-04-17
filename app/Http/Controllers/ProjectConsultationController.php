@@ -12,11 +12,15 @@ class ProjectConsultationController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'sender_email' => 'required|email|max:255',
-            'project_list' => 'required|string'
+            'email' => 'required|email|max:255',
+            'message' => 'required|string'
         ]);
 
-        $data = $request->only('name', 'sender_email', 'project_list');
+        $data = [
+            'name' => $request->name,
+            'sender_email' => $request->email,
+            'project_list' => $request->message,
+        ];
 
         // Sending email to the hardcoded owner email. They must configure .env Mail settings.
         try {
