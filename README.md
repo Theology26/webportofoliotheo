@@ -89,3 +89,24 @@ Seluruh antarmuka pada halaman tamu (landing page) maupun Dashboard Admin dipole
 Akses login di `/login`:
 - **Email**: `admin@admin.com`
 - **Password**: `admin123`
+
+---
+
+## 🛠️ Troubleshooting & Tips
+
+### 1. Gambar atau Logo Tidak Muncul?
+Pastikan Anda sudah menjalankan perintah `php artisan storage:link`. Jika sudah namun tetap tidak muncul, pastikan nilai `APP_URL` di file `.env` sudah sesuai dengan alamat yang Anda akses di browser (misal: `http://localhost:8000`).
+
+### 2. Perubahan Tidak Terlihat (Cache)?
+Jika Anda sudah mengubah data di Admin namun halaman depan tidak berubah, jalankan perintah:
+```bash
+php artisan optimize:clear
+```
+Lalu lakukan **Hard Refresh** di browser dengan menekan **Ctrl + F5**.
+
+### 3. Masalah Pengiriman Email?
+Pastikan Anda menggunakan **App Password** dari akun Google, bukan password login biasa. Pastikan juga `MAIL_ENCRYPTION` diatur ke `ssl` jika menggunakan port `465`.
+
+### 4. Efek Visual Terhambat?
+Pastikan tidak ada elemen kustom yang menutupi lapisan background. Sistem ini menggunakan `z-index` berlapis untuk memastikan efek partikel dan kursor tetap berfungsi di balik teks.
+
