@@ -7,8 +7,30 @@ use App\Models\Project;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
+use App\Services\GitHubService;
+
 class ProjectController extends Controller
 {
+    public function syncGithub(GitHubService $githubService)
+    {
+        $repos = $githubService->fetchAllRepositories();
+
+        foreach ($repos as $repo) {
+            Project::updateOrCreate(
+                ['github_id' => $repo['github_id']],
+                [
+                    'title' => $repo['title'],
+                    'description' => $repo['description'],
+                    'github_url' => $repo['github_url'],
+                    'tags' => $repo['tags'],
+                    'image' => $repo['preview_image'], // Gunakan preview dari GitHub
+                ]
+            );
+        }
+
+        return redirect()->route('admin.projects.index')->with('success', 'GitHub Projects berhasil disinkronisasi!');
+    }
+
     public function index()
     {
         $projects = Project::all();

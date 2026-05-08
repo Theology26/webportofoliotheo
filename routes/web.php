@@ -56,8 +56,11 @@ Route::middleware('auth')->group(function () {
     // --- Rute Edit Akun Bawaan Breeze ---
     Route::get('/admin/portfolio', [PortfolioController::class, 'edit'])->name('admin.portfolio.edit');
     Route::patch('/admin/portfolio', [PortfolioController::class, 'update'])->name('admin.portfolio.update');
+    Route::delete('/admin/portfolio-photo', [PortfolioController::class, 'deletePhoto'])->name('admin.portfolio.delete-photo');
+    Route::delete('/admin/portfolio-logo', [PortfolioController::class, 'deleteLogo'])->name('admin.portfolio.delete-logo');
 
     // --- Rute CMS Baru ---
+    Route::post('admin/projects/sync', [\App\Http\Controllers\Admin\ProjectController::class, 'syncGithub'])->name('admin.projects.sync');
     Route::resource('admin/experiences', \App\Http\Controllers\Admin\ExperienceController::class)->names('admin.experiences');
     Route::resource('admin/projects', \App\Http\Controllers\Admin\ProjectController::class)->names('admin.projects');
     Route::resource('admin/activities', \App\Http\Controllers\Admin\ActivityController::class)->names('admin.activities');

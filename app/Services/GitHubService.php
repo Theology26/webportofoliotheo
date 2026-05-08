@@ -90,6 +90,49 @@ class GitHubService
         });
     }
 
+    public function fetchAllRepositories()
+    {
+        $username = 'Theology26';
+        $token = env('GITHUB_TOKEN');
+
+        $headers = [
+            'Accept' => 'application/vnd.github.v3+json',
+        ];
+
+        if ($token) {
+            $headers['Authorization'] = 'Bearer ' . $token;
+        }
+
+        try {
+            $response = Http::withHeaders($headers)
+                ->get("https://api.github.com/users/{$username}/repos?per_page=100&type=owner&sort=updated");
+
+            if ($response->failed()) {
+                return [];
+            }
+
+            $repos = $response->json();
+
+            if (!is_array($repos)) {
+                return [];
+            }
+
+            return array_map(function ($repo) use ($username) {
+                return [
+                    'github_id' => (string) $repo['id'],
+                    'title' => $repo['name'],
+                    'description' => $repo['description'] ?? 'No description provided.',
+                    'github_url' => $repo['html_url'],
+                    'tags' => $repo['language'] ?? '',
+                    'preview_image' => "https://opengraph.githubassets.com/1/{$username}/{$repo['name']}"
+                ];
+            }, $repos);
+
+        } catch (\Exception $e) {
+            return [];
+        }
+    }
+
     private function defaultFallbackData()
     {
         return [

@@ -2,7 +2,13 @@
     <x-slot name="header">
         <div class="flex justify-between items-center text-white">
             <h2 class="font-semibold text-xl leading-tight">Projek Portofolio</h2>
-            <a href="{{ route('admin.projects.create') }}" class="glass-button py-2 px-4 shadow-sm text-sm">Tambah Baru</a>
+            <div class="flex gap-4">
+                <form action="{{ route('admin.projects.sync') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="glass-panel py-2 px-4 shadow-sm text-sm border-cyan-500/50 hover:bg-cyan-500/20 text-cyan-400 font-bold">Sync from GitHub</button>
+                </form>
+                <a href="{{ route('admin.projects.create') }}" class="glass-button py-2 px-4 shadow-sm text-sm">Tambah Baru</a>
+            </div>
         </div>
     </x-slot>
 
@@ -26,7 +32,11 @@
                         @foreach($projects as $proj)
                         <tr class="border-b border-gray-700 hover:bg-white/5 transition">
                             <td class="py-3 px-4">
-                                @if($proj->image) <img src="{{ asset('storage/' . $proj->image) }}" class="w-16 h-12 object-cover rounded"> @else <div class="w-16 h-12 bg-gray-800 rounded"></div> @endif
+                                @if($proj->image) 
+                                    <img src="{{ str_starts_with($proj->image, 'http') ? $proj->image : asset('storage/' . $proj->image) }}" class="w-16 h-12 object-cover rounded"> 
+                                @else 
+                                    <div class="w-16 h-12 bg-gray-800 rounded"></div> 
+                                @endif
                             </td>
                             <td class="py-3 px-4 font-semibold">{{ $proj->title }}</td>
                             <td class="py-3 px-4 text-gray-400 text-sm">{{ Str::limit($proj->description, 50) }}</td>

@@ -8,14 +8,32 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
             <div class="p-4 sm:p-8 glass-panel sm:rounded-[2rem]">
-                <div class="max-w-xl">
+                <div class="p-6 text-gray-900 dark:text-gray-100">
                     <section>
-                        <header>
-                            <h2 class="text-lg font-medium text-white">Hero Section</h2>
-                            <p class="mt-1 text-sm text-gray-400">Sesuaikan kalimat pembuka di halaman depan.</p>
+                        <header class="mb-6 flex justify-between items-center">
+                            <div>
+                                <h2 class="text-xl font-bold text-white">Informasi Portofolio</h2>
+                                <p class="mt-1 text-sm text-gray-400">Atur tampilan utama portofolio Anda di sini.</p>
+                            </div>
+                            
+                            @if (session('status'))
+                                <div x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 5000)" class="bg-emerald-500/10 border border-emerald-500 text-emerald-400 px-4 py-2 rounded-lg text-sm font-bold shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+                                    {{ session('status') }}
+                                </div>
+                            @endif
+
+                            @if ($errors->any())
+                                <div class="bg-red-500/10 border border-red-500 text-red-400 px-4 py-2 rounded-lg text-sm font-bold">
+                                    <ul>
+                                        @foreach ($errors->all() as $error)
+                                            <li>⚠️ {{ $error }}</li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
                         </header>
 
-                        <form method="post" action="{{ route('admin.portfolio.update') }}" class="mt-6 space-y-6" enctype="multipart/form-data">
+                        <form method="post" action="{{ route('admin.portfolio.update') }}" class="space-y-6" enctype="multipart/form-data">
                             @csrf
                             @method('patch')
 
@@ -39,7 +57,12 @@
                                 @if($profile->profile_photo)
                                     <div class="mt-2 mb-4">
                                         <p class="text-sm text-gray-500 mb-1">Foto saat ini:</p>
-                                        <img src="{{ asset('storage/' . $profile->profile_photo) }}" alt="Profile" class="w-32 h-32 object-cover rounded-xl border border-gray-600 shadow-lg">
+                                        <div class="flex items-end gap-4">
+                                            <img src="{{ asset('storage/' . $profile->profile_photo) }}" alt="Profile" class="w-32 h-32 object-cover rounded-xl border border-gray-600 shadow-lg">
+                                            <button type="button" onclick="if(confirm('Hapus foto profil?')) document.getElementById('delete-photo-form').submit();" class="text-xs bg-red-600/20 hover:bg-red-600 text-red-500 hover:text-white px-3 py-1 rounded-lg border border-red-500/50 transition">
+                                                Hapus Foto
+                                            </button>
+                                        </div>
                                     </div>
                                 @endif
                                 <img id="preview_profile" src="#" alt="Preview" class="hidden w-32 h-32 object-cover rounded-xl border border-cyan-500 mt-4 shadow-[0_0_15px_rgba(56,189,248,0.5)]">
@@ -58,7 +81,12 @@
                                 @if($profile->logo_image)
                                     <div class="mt-2 mb-4">
                                         <p class="text-sm text-gray-500 mb-1">Logo saat ini:</p>
-                                        <img src="{{ asset('storage/' . $profile->logo_image) }}" alt="Logo" class="max-h-16 object-contain rounded border border-gray-600 bg-gray-900 p-2">
+                                        <div class="flex items-end gap-4">
+                                            <img src="{{ asset('storage/' . $profile->logo_image) }}" alt="Logo" class="max-h-16 object-contain rounded border border-gray-600 bg-gray-900 p-2">
+                                            <button type="button" onclick="if(confirm('Hapus logo kustom?')) document.getElementById('delete-logo-form').submit();" class="text-xs bg-red-600/20 hover:bg-red-600 text-red-500 hover:text-white px-3 py-1 rounded-lg border border-red-500/50 transition">
+                                                Hapus Logo
+                                            </button>
+                                        </div>
                                     </div>
                                 @endif
                                 <img id="preview_logo" src="#" alt="Preview Logo" class="hidden max-h-16 object-contain rounded border border-cyan-500 mt-4 bg-gray-900 p-2 shadow-[0_0_15px_rgba(56,189,248,0.5)]">
@@ -97,16 +125,16 @@
                             <p class="text-sm text-cyan-400 mt-6 italic">*Untuk mengatur akun social media (Github, LinkedIn, IG, dll) silakan gunakan menu <b>Social Media</b> di navbar.</p>
 
                             <div class="flex items-center gap-4 pt-6 mt-6 border-t border-gray-600">
-                                <x-primary-button>{{ __('Simpan Perubahan') }}</x-primary-button>
+                                <x-primary-button>{{ __('Simpan Perbarui Profil') }}</x-primary-button>
 
-                                @if (session('status') === 'profile-updated')
+                                @if (session('status'))
                                     <p
                                         x-data="{ show: true }"
                                         x-show="show"
                                         x-transition
                                         x-init="setTimeout(() => show = false, 2000)"
-                                        class="text-sm text-gray-300"
-                                    >{{ __('Saved.') }}</p>
+                                        class="text-sm text-cyan-400 font-bold"
+                                    >{{ session('status') }}</p>
                                 @endif
                             </div>
                         </form>
@@ -115,6 +143,16 @@
             </div>
         </div>
     </div>
+
+    <!-- Hidden Delete Forms to avoid nesting -->
+    <form id="delete-photo-form" action="{{ route('admin.portfolio.delete-photo') }}" method="POST" class="hidden">
+        @csrf
+        @method('DELETE')
+    </form>
+    <form id="delete-logo-form" action="{{ route('admin.portfolio.delete-logo') }}" method="POST" class="hidden">
+        @csrf
+        @method('DELETE')
+    </form>
 
     <!-- Live Preview Script -->
     <script>

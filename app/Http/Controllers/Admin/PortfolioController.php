@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Profile; // Wajib dipanggil untuk akses database portofolio
 use Illuminate\Support\Facades\Storage; // Wajib dipanggil untuk fitur upload gambar
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class PortfolioController extends Controller
 {
@@ -23,9 +25,9 @@ class PortfolioController extends Controller
             'hero_title_highlight' => 'nullable|string|max:255',
             'hero_title_outline' => 'nullable|string|max:255',
             'hero_subtitle' => 'nullable|string',
-            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120', 
-            'logo_image' => 'nullable|image|mimes:jpeg,png,jpg,svg,webp|max:5120', 
-            'cv_file' => 'nullable|mimes:pdf,doc,docx|max:10240',
+            'profile_photo' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240', 
+            'logo_image' => 'nullable|image|mimes:jpeg,png,jpg,svg,webp|max:10240', 
+            'cv_file' => 'nullable|mimes:pdf,doc,docx|max:15360',
             'full_name' => 'nullable|string|max:255',
             'job_title' => 'nullable|string|max:255',
             'birth_place_date' => 'nullable|string|max:255',
@@ -42,10 +44,10 @@ class PortfolioController extends Controller
             }
             try {
                 $manager = new ImageManager(new Driver());
-                $image = $manager->read($request->file('profile_photo'));
+                $image = $manager->decode($request->file('profile_photo'));
                 $filename = 'profiles/' . uniqid() . '.webp';
-                // Compress & Save as WebP
-                $image->toWebp(75)->save(storage_path('app/public/' . $filename));
+                // Save as WebP with 75% quality
+                $image->save(storage_path('app/public/' . $filename), 75);
                 $profile->profile_photo = $filename;
             } catch (\Exception $e) {
                 // Fallback jika tidak support webp/gd
@@ -66,9 +68,10 @@ class PortfolioController extends Controller
             } else {
                 try {
                     $manager = new ImageManager(new Driver());
-                    $image = $manager->read($request->file('logo_image'));
+                    $image = $manager->decode($request->file('logo_image'));
                     $filename = 'profiles/logo_' . uniqid() . '.webp';
-                    $image->toWebp(85)->save(storage_path('app/public/' . $filename));
+                    // Save as WebP with 85% quality
+                    $image->save(storage_path('app/public/' . $filename), 85);
                     $profile->logo_image = $filename;
                 } catch (\Exception $e) {
                     $pathLogo = $request->file('logo_image')->store('profiles', 'public');
@@ -105,5 +108,27 @@ class PortfolioController extends Controller
         $profile->save();
 
         return redirect()->back()->with('status', 'Portofolio berhasil diperbarui!');
+    }
+
+    public function deletePhoto()
+    {
+        $profile = Profile::first();
+        if ($profile && $profile->profile_photo) {
+            Storage::delete('public/' . $profile->profile_photo);
+            $profile->profile_photo = null;
+            $profile->save();
+        }
+        return redirect()->back()->with('status', 'Foto profil berhasil dihapus!');
+    }
+
+    public function deleteLogo()
+    {
+        $profile = Profile::first();
+        if ($profile && $profile->logo_image) {
+            Storage::delete('public/' . $profile->logo_image);
+            $profile->logo_image = null;
+            $profile->save();
+        }
+        return redirect()->back()->with('status', 'Logo kustom berhasil dihapus!');
     }
 }

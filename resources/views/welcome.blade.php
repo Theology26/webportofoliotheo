@@ -3,7 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Theo | Fullstack Developer</title>
+    <title>{{ $profile->full_name ?? config('app.name') }} | Portofolio</title>
+    
+    <!-- Favicon -->
+    @if(isset($profile) && $profile->logo_image)
+        <link rel="icon" type="image/x-icon" href="{{ asset('storage/' . $profile->logo_image) }}">
+    @endif
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
@@ -158,7 +163,7 @@
         }
     </style>
 </head>
-<body class="font-sans antialiased relative selection:bg-cyan-500 selection:text-white bg-black text-white">
+<body class="font-sans antialiased relative selection:bg-cyan-500 selection:text-white bg-black text-white" style="color: white;">
 
     <!-- 3D Aurora Background -->
     <div class="aurora-container">
@@ -183,18 +188,21 @@
         <!-- Header -->
         <header class="w-full px-8 py-6 flex justify-between items-center fixed top-0 backdrop-blur-md border-b border-white/5 z-50">
             <div class="flex items-center">
-                @if(isset($profile) && $profile->logo_image)
-                    <img src="{{ asset('storage/' . $profile->logo_image) }}" alt="Logo" class="h-10 object-contain">
-                @else
-                    <div class="text-2xl font-bold tracking-tighter text-white flex items-center gap-3">
+                <div class="text-2xl font-bold tracking-tighter text-white flex items-center gap-3">
+                    @if(isset($profile) && $profile->logo_image)
+                        <div class="relative w-11 h-11 flex items-center justify-center p-0.5">
+                            <div class="absolute inset-0 bg-cyan-400/20 rounded-full blur-md animate-pulse"></div>
+                            <img src="{{ asset('storage/' . $profile->logo_image) }}" alt="Logo" class="relative z-10 w-full h-full object-cover rounded-full border-2 border-cyan-400 shadow-[0_0_15px_rgba(34,211,238,0.8)]">
+                        </div>
+                    @else
                         <div class="relative w-10 h-10 flex items-center justify-center">
                             <div class="absolute inset-0 bg-gradient-to-tr from-cyan-400 to-blue-600 rounded-xl transform rotate-45 blur-sm opacity-60 animate-pulse"></div>
                             <div class="absolute inset-0 bg-gradient-to-tr from-cyan-400 to-blue-600 rounded-xl transform rotate-45 border border-white/30 shadow-[0_0_20px_rgba(56,189,248,0.6)]"></div>
                             <span class="relative z-10 text-white text-sm font-extrabold tracking-widest drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">TH</span>
                         </div>
-                        <span class="bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400 text-3xl font-extrabold drop-shadow-[0_2px_10px_rgba(255,255,255,0.2)]">Theo<span class="text-cyan-400">.</span></span>
-                    </div>
-                @endif
+                    @endif
+                    <span class="bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400 text-3xl font-extrabold drop-shadow-[0_2px_10px_rgba(255,255,255,0.2)]">Theo<span class="text-cyan-400">.</span></span>
+                </div>
             </div>
             <nav class="hidden md:flex gap-8 text-sm font-medium text-gray-300">
                 <a href="#about" class="hover:text-cyan-400 transition-colors">About Me</a>
@@ -205,32 +213,53 @@
             </nav>
         </header>
 
-        <!-- Hero Section -->
-        <section class="container mx-auto px-8 md:px-16 min-h-[85vh] flex flex-col items-center justify-center pt-12 md:pt-0 text-center relative z-10">
-            <div class="max-w-4xl flex flex-col items-center relative z-10">
+        <!-- Hero Section: Cinematic Title (Full Screen) -->
+        <section class="min-h-screen flex flex-col items-center justify-start text-center relative z-10 pt-32 md:pt-48">
+            <div class="max-w-6xl flex flex-col items-center px-8">
                 <div class="text-cyan-400 font-mono tracking-widest text-sm mb-6 uppercase flex items-center gap-3">
                     <span class="w-12 h-[1px] bg-cyan-400"></span> Welcome <span class="w-12 h-[1px] bg-cyan-400"></span>
                 </div>
-                <h1 class="text-[4rem] md:text-[6rem] lg:text-[7rem] font-extrabold leading-[0.9] tracking-tighter mb-6 mx-auto">
+                <h1 class="text-[4rem] md:text-[7rem] lg:text-[9rem] font-extrabold leading-[0.8] tracking-tighter mx-auto">
                     <span class="block">{{ $profile->hero_title_1 ?? 'Digital' }}</span>
-                    <span class="block text-cyan-400 drop-shadow-[0_0_15px_rgba(56,189,248,0.3)]">{{ $profile->hero_title_highlight ?? 'solutions' }}</span>
+                    <span class="block text-cyan-400 drop-shadow-[0_0_30px_rgba(56,189,248,0.4)]">{{ $profile->hero_title_highlight ?? 'solutions' }}</span>
                     <span class="block text-outline">{{ $profile->hero_title_outline ?? 'made easy.' }}</span>
                 </h1>
-                <p class="text-xl md:text-2xl text-gray-400 max-w-2xl mx-auto mb-10 font-light leading-relaxed">
-                    {{ $profile->hero_subtitle }}
-                </p>
-                <a href="#projek" class="glass-button w-auto inline-flex items-center gap-2 relative z-10">
-                    Eksplorasi Portofolio 
-                    <svg class="w-5 h-5 animate-bounce mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
-                </a>
+                
+                <!-- Scroll Indicator (Glassmorphism Bubble) -->
+                <div id="scroll-indicator" class="absolute bottom-16 left-1/2 -translate-x-1/2 transition-all duration-700 z-[50]">
+                    <div class="glass-panel px-4 py-8 rounded-full flex flex-col items-center gap-4 border-cyan-400/20 shadow-[0_0_30px_rgba(56,189,248,0.15)] backdrop-blur-md relative z-50">
+                        <span class="text-[9px] uppercase tracking-[0.4em] font-extrabold text-cyan-400/80 vertical-text">Scroll</span>
+                        <div class="flex flex-col items-center -space-y-2">
+                            <svg class="w-5 h-5 text-cyan-400 animate-arrow-flow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                            <svg class="w-5 h-5 text-cyan-400/50 animate-arrow-flow" style="animation-delay: 0.5s" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Hero Section: Description & CTA (Next Page Feel) -->
+        <section class="container mx-auto px-8 md:px-16 py-32 flex flex-col items-center text-center relative z-10">
+            <div class="reveal max-w-4xl">
+                <div class="glass-panel px-8 py-10 md:px-12 md:py-16 rounded-[3rem] border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] backdrop-blur-xl relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                    <p class="text-2xl md:text-3xl text-white/90 mb-12 font-light leading-relaxed drop-shadow-[0_2px_10px_rgba(255,255,255,0.2)]">
+                        {{ $profile->hero_subtitle }}
+                    </p>
+                    <a href="#projek" class="glass-button w-auto inline-flex items-center gap-4 px-10 py-5 text-lg shadow-[0_0_20px_rgba(56,189,248,0.2)] hover:shadow-[0_0_40px_rgba(56,189,248,0.6)] relative z-[99]">
+                        Eksplorasi Portofolio 
+                        <svg class="w-6 h-6 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path></svg>
+                    </a>
+                </div>
             </div>
         </section>
 
         <!-- About Me Section -->
-        <section id="about" class="container mx-auto px-8 md:px-16 py-32 border-t border-white/5 bg-[#020617]/50 backdrop-blur-sm rounded-t-[4rem] relative z-10 mt-20">
-            <h2 class="text-4xl md:text-5xl font-bold mb-16 tracking-tighter border-b border-white/10 pb-6">About <span class="text-cyan-400">Me</span></h2>
-            
-            <div class="glass-panel p-10 md:p-16 rounded-[2rem] flex flex-col lg:flex-row gap-16 lg:gap-20 items-center">
+        <section id="about" class="container mx-auto px-8 md:px-16 py-32 relative z-10 mt-20">
+            <div class="reveal glass-panel p-10 md:p-16 rounded-[4rem] border border-white/5 bg-white/[0.02] backdrop-blur-md shadow-2xl">
+                <h2 class="text-4xl md:text-5xl font-bold mb-16 tracking-tighter border-b border-white/10 pb-6 title-glow-cyan">About <span class="text-cyan-400">Me</span></h2>
+                
+                <div class="flex flex-col lg:flex-row gap-16 lg:gap-20 items-center">
                 
                 <!-- Foto 3D Kiri -->
                 <div class="w-64 h-64 md:w-80 md:h-80 shrink-0 relative interactive-container">
@@ -293,14 +322,16 @@
                     </div>
                 </div>
             </div>
+        </div>
         </section>
 
         <!-- Tech Stack & Percentage (Task 1 & 3) -->
-        <section id="tech-stack" class="container mx-auto px-8 md:px-16 py-32 border-t border-white/5 bg-[#020617]/50 backdrop-blur-sm relative z-10">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl md:text-5xl font-bold text-outline tracking-tighter mb-4">Tech <span class="text-cyan-400" style="-webkit-text-stroke: 0;">Stack</span></h2>
-                <p class="text-gray-400 max-w-xl mx-auto">Bahasa pemrograman yang paling sering saya gunakan berdasarkan data riwayat public repository GitHub.</p>
-            </div>
+        <section id="tech-stack" class="container mx-auto px-8 md:px-16 py-32 relative z-10">
+            <div class="reveal glass-panel p-10 md:p-16 rounded-[4rem] border border-white/5 bg-white/[0.01] backdrop-blur-sm shadow-xl">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl md:text-5xl font-bold text-outline tracking-tighter mb-4 title-glow-cyan">Tech <span class="text-cyan-400" style="-webkit-text-stroke: 0;">Stack</span></h2>
+                    <p class="text-gray-400 max-w-xl mx-auto">Bahasa pemrograman yang paling sering saya gunakan berdasarkan data riwayat public repository GitHub.</p>
+                </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
                 @if(isset($githubData['languages']) && !empty($githubData['languages']))
@@ -319,11 +350,13 @@
                     <p class="col-span-1 border border-dashed border-gray-700 py-12 text-center text-gray-500 rounded-3xl w-full">Loading data GitHub...</p>
                 @endif
             </div>
+        </div>
         </section>
 
         <!-- Pengalaman Section -->
-        <section id="pengalaman" class="container mx-auto px-8 md:px-16 py-32 border-t border-white/5 bg-[#020617]/50 backdrop-blur-sm">
-            <h2 class="text-4xl md:text-5xl font-bold mb-16 text-outline tracking-tighter">Pengalaman <span class="text-cyan-400" style="-webkit-text-stroke: 0;">& Pekerjaan</span></h2>
+        <section id="pengalaman" class="container mx-auto px-8 md:px-16 py-32 relative z-10">
+            <div class="reveal glass-panel p-10 md:p-16 rounded-[4rem] border border-white/5 bg-white/[0.02] backdrop-blur-md shadow-2xl">
+                <h2 class="text-4xl md:text-5xl font-bold mb-16 text-outline tracking-tighter title-glow-blue">Pengalaman <span class="text-cyan-400" style="-webkit-text-stroke: 0;">& Pekerjaan</span></h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 @foreach($experiences as $exp)
@@ -339,14 +372,16 @@
                 <p class="col-span-1 border border-dashed border-gray-700 py-12 text-center text-gray-500 rounded-3xl">Coming Soon.</p>
                 @endif
             </div>
+        </div>
         </section>
 
         <!-- Projek Section -->
-        <section id="projek" class="container mx-auto px-8 md:px-16 py-32 bg-[#020617]/50 backdrop-blur-sm border-t border-white/5">
-            <div class="flex flex-col items-end text-right mb-16">
-                <h2 class="text-4xl md:text-5xl font-bold text-outline tracking-tighter">Projek <span class="text-blue-500" style="-webkit-text-stroke: 0;">Terbaru</span></h2>
-                <p class="text-gray-400 mt-4 max-w-md">Karya yang saya bangun dari nol hingga menjadi solusi nyata.</p>
-            </div>
+        <section id="projek" class="container mx-auto px-8 md:px-16 py-32 relative z-10">
+            <div class="reveal glass-panel p-10 md:p-16 rounded-[4rem] border border-white/5 bg-white/[0.01] backdrop-blur-sm shadow-xl">
+                <div class="flex flex-col items-end text-right mb-16">
+                    <h2 class="text-4xl md:text-5xl font-bold text-outline tracking-tighter title-glow-cyan">Projek <span class="text-blue-500" style="-webkit-text-stroke: 0;">Terbaru</span></h2>
+                    <p class="text-gray-400 mt-4 max-w-md">Karya yang saya bangun dari nol hingga menjadi solusi nyata.</p>
+                </div>
             
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 @foreach($projects as $proj)
@@ -354,7 +389,7 @@
                     <div class="spotlight-overlay"></div>
                     <div class="h-72 bg-gray-900 relative overflow-hidden">
                         @if($proj->image)
-                            <img src="{{ asset('storage/' . $proj->image) }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 interactive-grayscale">
+                            <img src="{{ str_starts_with($proj->image, 'http') ? $proj->image : asset('storage/' . $proj->image) }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 interactive-grayscale">
                         @else
                             <div class="absolute inset-0 bg-gradient-to-br from-cyan-600/40 to-blue-900/40 group-hover:scale-110 transition-transform duration-500 interactive-grayscale"></div>
                         @endif
@@ -373,13 +408,15 @@
                 <p class="col-span-3 border border-dashed border-gray-700 py-16 text-center text-gray-500 rounded-3xl">Belum ada karya ditambahkan.</p>
                 @endif
             </div>
+        </div>
         </section>
 
         <!-- Galeri Section -->
-        <section id="galeri" class="container mx-auto px-8 md:px-16 py-32 bg-[#020617]/50 backdrop-blur-sm border-t border-white/5">
-            <h2 class="text-4xl md:text-5xl font-bold mb-16 text-outline tracking-tighter">Galeri <span class="text-purple-400" style="-webkit-text-stroke: 0;">Kegiatan</span></h2>
-            
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <section id="galeri" class="container mx-auto px-8 md:px-16 py-32 relative z-10">
+            <div class="reveal glass-panel p-10 md:p-16 rounded-[4rem] border border-white/5 bg-white/[0.02] backdrop-blur-md shadow-2xl">
+                <h2 class="text-4xl md:text-5xl font-bold mb-16 text-outline tracking-tighter title-glow-purple">Galeri <span class="text-purple-400" style="-webkit-text-stroke: 0;">Kegiatan</span></h2>
+                
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 @foreach($activities as $act)
                 <div class="glass-panel h-48 md:h-56 rounded-2xl relative overflow-hidden group interactive-container hover:shadow-[0_0_20px_rgba(168,85,247,0.4)] transition-all">
                     <div class="spotlight-overlay"></div>
@@ -390,18 +427,20 @@
                 </div>
                 @endforeach
                 @if($activities->isEmpty())
-                <div class="col-span-4 border border-dashed border-gray-700 py-16 text-center text-gray-500 rounded-3xl">Galeri masih kosong.</div>
+                    <div class="col-span-4 border border-dashed border-gray-700 py-16 text-center text-gray-500 rounded-3xl">Galeri masih kosong.</div>
                 @endif
             </div>
+        </div>
         </section>
 
         <!-- Discuss a Project / Contact Form -->
-        <section id="contact" class="container mx-auto px-8 md:px-16 py-32 bg-[#020617]/50 backdrop-blur-sm rounded-b-[4rem] border-t border-white/5 pb-40">
-            <div class="glass-panel p-10 md:p-16 rounded-[3rem] border border-cyan-400/20 shadow-[0_0_50px_rgba(56,189,248,0.1)] max-w-4xl mx-auto">
-                <div class="text-center mb-12">
-                    <h2 class="text-4xl md:text-5xl font-bold mb-8 text-outline tracking-tighter">Bahas <span class="text-emerald-400" style="-webkit-text-stroke: 0;">Projek Anda</span></h2>
-                    <p class="text-gray-400 mb-8 max-w-lg mx-auto">Punya ide aplikasi atau butuh website profesional? Mari diskusikan kebutuhan Anda. Isi form di bawah dan saya akan merespon melalui email secepatnya.</p>
-                </div>
+        <section id="contact" class="container mx-auto px-8 md:px-16 py-32 relative z-10 pb-40">
+            <div class="reveal glass-panel p-10 md:p-16 rounded-[4rem] border border-cyan-400/20 bg-cyan-950/20 backdrop-blur-md shadow-[0_0_50px_rgba(56,189,248,0.15)]">
+                <div class="max-w-4xl mx-auto">
+                    <div class="text-center mb-12">
+                        <h2 class="text-4xl md:text-5xl font-bold mb-8 text-outline tracking-tighter title-glow-emerald">Bahas <span class="text-emerald-400" style="-webkit-text-stroke: 0;">Projek Anda</span></h2>
+                        <p class="text-gray-400 mb-8 max-w-lg mx-auto leading-relaxed">Punya ide aplikasi atau butuh website profesional? Mari diskusikan kebutuhan Anda. Isi form di bawah dan saya akan merespon melalui email secepatnya.</p>
+                    </div>
 
                 <form action="{{ route('contact.send') }}" method="POST" class="space-y-6">
                     @csrf
@@ -417,33 +456,48 @@
                         <label for="message" class="block text-sm font-medium text-gray-400 mb-2">Tulis Daftar Projek / Ide Anda</label>
                         <textarea id="message" name="message" rows="5" class="w-full bg-gray-900/50 border border-gray-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition" required></textarea>
                     </div>
-                    <button type="submit" class="w-full glass-button py-4 text-center justify-center flex hover:bg-emerald-500 hover:shadow-[0_0_20px_rgba(16,185,129,0.5)]">
+                    <button type="submit" class="w-full glass-button py-4 text-center justify-center flex hover:bg-emerald-500 hover:shadow-[0_0_30px_rgba(16,185,129,0.6)] relative z-[99]">
                         Kirim Permintaan Diskusi
                     </button>
                 </form>
             </div>
             
             @if(session('contact_success'))
-            <!-- Toast Notification -->
-            <div id="toast" class="fixed bottom-10 right-10 z-50 flex items-center glass-panel border-emerald-500/50 p-4 rounded-xl shadow-[0_0_20px_rgba(16,185,129,0.3)] animate-bounce">
-                <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-emerald-500 bg-emerald-100 rounded-lg">
-                    <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5Zm3.707 8.207-4 4a1 1 0 0 1-1.414 0l-2-2a1 1 0 0 1 1.414-1.414L9 10.586l3.293-3.293a1 1 0 0 1 1.414 1.414Z"/>
+            <!-- Toast Notification Ultra Visible -->
+            <div id="toast" class="fixed top-20 right-10 z-[10000] flex items-center bg-gray-900 border border-emerald-500 p-5 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] animate-slide-in" style="min-width: 300px;">
+                <div class="inline-flex items-center justify-center flex-shrink-0 w-12 h-12 text-white bg-emerald-500 rounded-2xl shadow-[0_0_15px_rgba(16,185,129,0.5)]">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
                     </svg>
                 </div>
-                <div class="ms-3 text-sm font-normal text-white">{{ session('contact_success') }}</div>
+                <div class="ms-4 pr-8">
+                    <p class="text-base font-bold text-emerald-400">Pesan Terkirim!</p>
+                    <p class="text-sm text-gray-300 leading-snug">{{ session('contact_success') }}</p>
+                </div>
+                <button type="button" onclick="document.getElementById('toast').remove()" class="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
             </div>
+            <style>
+                @keyframes slide-in {
+                    from { transform: translateX(120%); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+                .animate-slide-in { animation: slide-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+            </style>
             <script>
                 setTimeout(function() {
                     let toast = document.getElementById('toast');
                     if(toast) {
                         toast.style.opacity = '0';
-                        toast.style.transition = 'opacity 1s ease';
-                        setTimeout(() => toast.remove(), 1000);
+                        toast.style.transform = 'translateX(100px)';
+                        toast.style.transition = 'all 0.8s cubic-bezier(0.4, 0, 0.2, 1)';
+                        setTimeout(() => toast.remove(), 800);
                     }
-                }, 4000);
+                }, 8000);
             </script>
             @endif
+            </div>
         </section>
 
         <!-- Footer -->
@@ -478,7 +532,7 @@
             </button>
             
             @if($proj->image)
-                <img src="{{ asset('storage/' . $proj->image) }}" class="w-full h-64 object-cover rounded-[1.5rem] mb-8 border border-white/10">
+                <img src="{{ str_starts_with($proj->image, 'http') ? $proj->image : asset('storage/' . $proj->image) }}" class="w-full h-64 object-cover rounded-[1.5rem] mb-8 border border-white/10">
             @else
                 <div class="w-full h-48 bg-gradient-to-br from-cyan-600/40 to-blue-900/40 rounded-[1.5rem] mb-8 border border-white/10 flex items-center justify-center text-gray-500">No Image</div>
             @endif
@@ -488,9 +542,9 @@
             <div class="mb-6"><span class="px-3 py-1 bg-white/10 rounded-full text-sm text-cyan-300 border border-white/10">{{ $proj->tags }}</span></div>
             @endif
             <p class="text-gray-300 leading-relaxed text-lg whitespace-pre-wrap">{{ $proj->description }}</p>
-            @if($proj->link)
+            @if($proj->link || $proj->github_url)
             <div class="mt-8">
-                <a href="{{ $proj->link }}" target="_blank" class="glass-button w-auto inline-flex items-center gap-2 text-sm px-6 py-2">Lihat Projek <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg></a>
+                <a href="{{ $proj->github_url ?: $proj->link }}" target="_blank" class="glass-button w-auto inline-flex items-center gap-2 text-sm px-6 py-2">Lihat Projek <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg></a>
             </div>
             @endif
         </div>
@@ -556,6 +610,38 @@
             });
         });
 
+        // Hide Scroll Indicator on Scroll
+        window.addEventListener('scroll', function() {
+            const indicator = document.getElementById('scroll-indicator');
+            if (indicator) {
+                if (window.scrollY > 100) {
+                    indicator.style.opacity = '0';
+                    indicator.style.pointerEvents = 'none';
+                    indicator.style.transform = 'translate(-50%, 20px)';
+                } else {
+                    indicator.style.opacity = '1';
+                    indicator.style.pointerEvents = 'auto';
+                    indicator.style.transform = 'translate(-50%, 0)';
+                }
+            }
+        });
+
+        // Intersection Observer for Reveal on Scroll
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { 
+            threshold: 0.15,
+            rootMargin: '0px 0px -50px 0px' 
+        });
+
+        document.querySelectorAll('.reveal').forEach((el) => {
+            revealObserver.observe(el);
+        });
+
         // Setup Point-to-Point Network (Constellation Web)
         if(window.particlesJS && window.innerWidth > 768) {
             particlesJS('particles-js', {
@@ -583,7 +669,7 @@
                     }
                 },
                 interactivity: {
-                    detect_on: "canvas",
+                    detect_on: "window",
                     events: {
                         onhover: { enable: true, mode: "grab" },
                         onclick: { enable: true, mode: "push" },
@@ -611,6 +697,65 @@
             transition: opacity 0.5s ease, transform 0.5s ease;
             box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
             backdrop-filter: blur(2px);
+        }
+
+        :root {
+            --primary: #06b6d4;
+            --primary-glow: rgba(6, 182, 212, 0.5);
+        }
+
+        body {
+            background-color: #020617;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        /* Reveal on Scroll */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .text-glow {
+            text-shadow: 0 0 15px rgba(56, 189, 248, 0.5);
+        }
+        
+        .title-glow-cyan { filter: drop-shadow(0 0 15px rgba(34, 211, 238, 0.4)); }
+        .title-glow-blue { filter: drop-shadow(0 0 15px rgba(59, 130, 246, 0.4)); }
+        .title-glow-purple { filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.4)); }
+        .title-glow-emerald { filter: drop-shadow(0 0 15px rgba(16, 185, 129, 0.4)); }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .bg-space-grid {
+            background-image: 
+                radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0);
+            background-size: 40px 40px;
+        }
+
+        /* Scroll Indicator Arrow Animation */
+        @keyframes arrow-flow {
+            0% { opacity: 0; transform: translateY(-10px); }
+            50% { opacity: 1; }
+            100% { opacity: 0; transform: translateY(10px); }
+        }
+        .animate-arrow-flow {
+            animation: arrow-flow 2s infinite;
+        }
+
+        .vertical-text {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
         }
     </style>
 </body>
